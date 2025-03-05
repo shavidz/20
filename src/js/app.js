@@ -1,82 +1,93 @@
-// Function to update the clock every second
-function updateClock() {
-    const clockElement = document.querySelector("#clock");
-    const date = new Date();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
+// Function to display the current time
+function showTime() {
+  const timeElement = document.getElementById('time');
 
-    // Format time
-    const formattedTime = `${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  setInterval(function () {
+    const currentTime = new Date();
+    const hours = String(currentTime.getHours()).padStart(2, '0');
+    const minutes = String(currentTime.getMinutes()).padStart(2, '0');
+    const seconds = String(currentTime.getSeconds()).padStart(2, '0');
 
-    // Update clock display
-    clockElement.textContent = formattedTime;
-    clockElement.style.backgroundImage = "url('src/img/საათი.png')";
+    timeElement.innerHTML = `${hours}:${minutes}:${seconds}`;
+  }, 1000);
 }
 
-// Set interval to update the clock every second
-setInterval(updateClock, 1000);
+// Countdown function
+function countdown() {
+  const countdownElement = document.getElementById('countdown-text');
+  const targetDate = new Date("2025-03-05T20:00:00");
 
-// Slider function with autoplay and stop on hover
+  setInterval(function () {
+    const currentDate = new Date();
+    const timeRemaining = targetDate - currentDate;
+
+    const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((timeRemaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
+
+    countdownElement.innerHTML = `${days} Days ${hours} Hours ${minutes} Minutes remaining until next lecture.`;
+
+    if (timeRemaining <= 0) {
+      countdownElement.innerHTML = "The lecture has started!";
+    }
+  }, 1000);
+}
+
+// Start the clock and countdown
+showTime();
+countdown();
+
+// Slider functionality
 function sliderFn() {
-    const slides = document.querySelectorAll(".slide");
-    const next = document.querySelector(".next");
-    const prev = document.querySelector(".prev");
-    let currentSlide = 0;
-    let autoSlideInterval;
+  const slides = document.querySelectorAll(".slide");
+  const next = document.querySelector(".next");
+  const prev = document.querySelector(".prev");
+  let currentSlide = 0;
 
-    // Function to render the current slide
-    function renderSlides() {
-        slides.forEach((slide, index) => {
-            if (index === currentSlide) {
-                slide.classList.add("show-slide");
-            } else {
-                slide.classList.remove("show-slide");
-            }
-        });
+  function renderSlides() {
+    slides.forEach((slide, index) => {
+      if (index === currentSlide) {
+        slide.classList.add("show-slide");
+      } else {
+        slide.classList.remove("show-slide");
+      }
+    });
+  }
+
+  function goToNextSlide() {
+    if (currentSlide === slides.length - 1) {
+      currentSlide = 0;
+    } else {
+      currentSlide++;
     }
+    renderSlides();
+  }
 
-    // Function to go to the next slide
-    function goToNextSlide() {
-        if (currentSlide === slides.length - 1) {
-            currentSlide = 0;
-        } else {
-            currentSlide++;
-        }
-        renderSlides();
+  function goToPreSlide() {
+    if (currentSlide === 0) {
+      currentSlide = slides.length - 1;
+    } else {
+      currentSlide--;
     }
+    renderSlides();
+  }
 
-    // Function to go to the previous slide
-    function goToPreSlide() {
-        if (currentSlide === 0) {
-            currentSlide = slides.length - 1;
-        } else {
-            currentSlide--;
-        }
-        renderSlides();
-    }
+  next.addEventListener("click", goToNextSlide);
+  prev.addEventListener("click", goToPreSlide);
 
-    // Function to start automatic sliding every 5 seconds
-    function startAutoSlide() {
-        autoSlideInterval = setInterval(goToNextSlide, 5000);
-    }
+  // Set auto change interval
+  let slideInterval = setInterval(goToNextSlide, 5000);
 
-    // Function to stop automatic sliding
-    function stopAutoSlide() {
-        clearInterval(autoSlideInterval);
-    }
+  // Stop slider on mouseenter and resume on mouseleave
+  const sliderWrapper = document.querySelector(".slider-wrapper");
+  sliderWrapper.addEventListener("mouseenter", () => {
+    clearInterval(slideInterval);
+  });
 
-    // Event listeners for manual slide navigation
-    next.addEventListener("click", goToNextSlide);
-    prev.addEventListener("click", goToPreSlide);
-
-    // Event listeners for mouseenter and mouseleave on slider wrapper
-    const sliderWrapper = document.querySelector(".slider-wrapper");
-    sliderWrapper.addEventListener("mouseenter", stopAutoSlide);
-    sliderWrapper.addEventListener("mouseleave", startAutoSlide);
-
-    // Start automatic sliding
-    startAutoSlide();
+  sliderWrapper.addEventListener("mouseleave", () => {
+    slideInterval = setInterval(goToNextSlide, 5000);
+  });
 }
 
+// Initialize slider
 sliderFn();
